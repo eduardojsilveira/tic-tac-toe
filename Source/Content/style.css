@@ -1,0 +1,98 @@
+﻿#msgConfirmarCadastro {
+    display: none;
+    position: absolute;
+    width: 20%;
+    top: 5%;
+    left: 55%;
+}
+
+#infojogos {
+margin-top : 20%;  
+left: 10%;
+}
+        
+span.box {
+	display: block;
+	border: 2px solid gray;
+	border-radius : 15px;
+	height: 90px;
+	width: 90px;
+	margin : 10%;
+            
+}
+
+@media (max-width : 400px) 
+{
+	span.box 
+	{	display: block;
+		border: 2px solid gray;
+		border-radius : 10px;
+		height: 50px;
+		width: 50px;
+		margin : 15%;
+	}
+}
+@media (mix-width : 401px) and (max-width : 768px)
+{
+	span.box 
+	{	display: block;
+		border: 2px solid gray;
+		border-radius : 10px;
+		height: 70px;
+		width: 70px;
+		margin : 12.5%;
+	}
+}
+@media (min-width: 768px) and (max-width: 991px) 
+{
+	span.box 
+	{
+		margin : 10%;
+	}
+}
+@media (min-width: 992px) and (max-width: 1199px) 
+{
+	span.box 
+	{
+		margin : 5%;
+	}
+} 
+@media (min-width: 1200px)
+{
+	span.box 
+	{
+		margin : 2.5%;
+	}
+}  
+
+
+   
+span.mark1 {
+    background: url('/Content/Images/tic-tac-toe-x-icon.png') center center no-repeat;
+}
+
+span.mark2 {
+    background: url('/Content/Images/tic-tac-toe-o-icon.png') center center no-repeat;
+}
+
+@media(max-width: 400px) 
+{
+	span.mark1 {
+		background: url('/Content/Images/tic-tac-toe-x-icon-mobile.png') center center no-repeat;
+	}
+
+	span.mark2 {
+		background: url('/Content/Images/tic-tac-toe-o-icon-mobile.png') center center no-repeat;
+	}
+}
+
+@media(min-width: 401px) and (max-width: 767px)
+{
+	span.mark1 {
+		background: url('/Content/Images/tic-tac-toe-x-icon-mobile2.png') center center no-repeat;
+	}
+
+	span.mark2 {
+		background: url('/Content/Images/tic-tac-toe-o-icon-mobile2.png') center center no-repeat;
+	}
+}
