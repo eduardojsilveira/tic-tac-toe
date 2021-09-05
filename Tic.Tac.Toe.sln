@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tic.tac.toe.web", "Source\tic.tac.toe.web.csproj", "{9866FD62-7538-4BBC-A0B5-FF45A82E222D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tic.Tac.Toe.Web.Site", "Tic.Tac.Toe.Web.Site\Tic.Tac.Toe.Web.Site.csproj", "{911FE2A4-FBD5-435B-8AB6-D293662FC784}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tic.Tac.Toe.Web.Site.Tests", "Tic.Tac.Toe.Web.Site.Tests\Tic.Tac.Toe.Web.Site.Tests.csproj", "{0F1656DC-26F0-49B3-A363-E049A34CB363}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9866FD62-7538-4BBC-A0B5-FF45A82E222D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9866FD62-7538-4BBC-A0B5-FF45A82E222D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9866FD62-7538-4BBC-A0B5-FF45A82E222D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9866FD62-7538-4BBC-A0B5-FF45A82E222D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{911FE2A4-FBD5-435B-8AB6-D293662FC784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{911FE2A4-FBD5-435B-8AB6-D293662FC784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{911FE2A4-FBD5-435B-8AB6-D293662FC784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{911FE2A4-FBD5-435B-8AB6-D293662FC784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F1656DC-26F0-49B3-A363-E049A34CB363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1656DC-26F0-49B3-A363-E049A34CB363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F1656DC-26F0-49B3-A363-E049A34CB363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1656DC-26F0-49B3-A363-E049A34CB363}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
