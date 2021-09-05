@@ -79,7 +79,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // descobre quem é o jogador de acordo com o id da conexão dele
             var jogador = jogo.Jogador1.IdConexao == Context.ConnectionId ? jogo.Jogador1 : jogo.Jogador2;
 
-            if (jogador == null) return null;
+            if (jogador == null) return Task.CompletedTask;
 
             listaJogadores.Remove(jogador);
             // caso tenha adversario remove todo o historico de partidas entre os dois e avisa ao adversario que o jogador desistiu da partida
