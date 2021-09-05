@@ -31,6 +31,26 @@ namespace Tic.Tac.Toe.Web.Site.Tests
         }
 
         [TestMethod]
+        public void BuscarAdversarioNaoEncontradoTest()
+        {
+            var guid = Guid.NewGuid().ToString();
+            var hub = new Jogo();
+            var mockClients = Mock.Create<IHubCallerConnectionContext<dynamic>>();
+            var mockContext = Mock.Create<HubCallerContext>();
+            var all = Mock.Create<IJogadorClient>();
+            hub.Clients = mockClients;
+            hub.Context = mockContext;
+            Mock.Arrange(() => mockClients.All).Returns(all);
+            Mock.Arrange(() => mockClients.Client(Arg.AnyString)).Returns(all);
+            Mock.Arrange(() => mockContext.ConnectionId).Returns(guid);
+
+            hub.CadastrarJogador("Teste1");
+            hub.BuscarAdversario(null);
+
+            Mock.Assert(() => all.adversarioNaoEncontrado(), Occurs.Exactly(1));
+        }
+
+        [TestMethod]
         public async Task OnConnectedApplicationTestAsync()
         {
             var hub = new Jogo();
@@ -46,7 +66,7 @@ namespace Tic.Tac.Toe.Web.Site.Tests
         {
             Task atualizaInformacoesJogos(int qtdPartidas, int qtdJogadores);
             Task confirmarCadastro();
-
+            Task adversarioNaoEncontrado();
         }
     }
 }
