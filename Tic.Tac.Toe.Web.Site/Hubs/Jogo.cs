@@ -102,7 +102,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // chama metodo no cliente que o cadastro foi confirmado
 
             var client = Clients.Client(Context.ConnectionId);
-            client.ConfirmarCadastro();
+            client.confirmarCadastro();
         }
         /// <summary> 
         /// Método que irá buscar adversários para o jogador cadastrado
