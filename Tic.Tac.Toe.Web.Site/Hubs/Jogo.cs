@@ -34,7 +34,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         /// <summary> 
         /// Objeto de números aleatórios para decidir quem começa a jogar 
         /// </summary>
-        private static readonly Random random = new Random();
+        private readonly Random _random = new Random();
 
         /// <summary> 
         /// Método sobrescrito da classe Hub. É executado quando o usuário entra no site.  
@@ -43,6 +43,16 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         public override Task OnConnected()
         {
             return AtualizarStatusSincronizacao();
+        }
+
+        public Jogo()
+        {
+
+        }
+
+        public Jogo(Random random)
+        {
+            _random = random;
         }
 
         public override Task OnDisconnected(bool stopCalled)
@@ -59,7 +69,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
 
                     AtualizarStatusSincronizacao();
                 }
-                return null;
+                return Task.CompletedTask;
             }
             // caso o jogador estava jogando remove a partida que estava jogando
             if (jogo != null)
@@ -81,7 +91,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                 AtualizarStatusSincronizacao();
                 return Clients.Client(jogador.Adversario.IdConexao).adversarioDesistiu();
             }
-            return null;
+            return Task.CompletedTask;
         }
 
         public void CadastrarJogador(string nome)
@@ -152,7 +162,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             Clients.Client(Context.ConnectionId).iniciarPartida(adversario.Nome, "/Content/Images/tic-tac-toe-x-icon.png", Context.ConnectionId);
             Clients.Client(adversario.IdConexao).iniciarPartida(jogador.Nome, "/Content/Images/tic-tac-toe-o-icon.png");
             #region Decide quem aletoriamente quem começa a partida
-            if (random.Next(0, 5000) % 2 == 0)
+            if (_random.Next(0, 5000) % 2 == 0)
             {
                 jogador.EsperandoMovimento = false;
                 adversario.EsperandoMovimento = true;
