@@ -103,7 +103,7 @@ namespace Tic.Tac.Toe.Web.Site.Models
             // atribui a posição que o jogador marcou
             array[posicao] = jogador;
             // Caso termine todos os movimentos e não houve vencedor retorna como empate.
-            if (qtdMovimentos <= 0 && VerificarGanhador() == false)
+            if (qtdMovimentos <= 0 && !VerificarGanhador())
             {
                 JogoFinalizado = true;
                 DeuEmpate = true;

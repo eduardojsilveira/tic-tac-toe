@@ -82,7 +82,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             if (jogador == null) return Task.CompletedTask;
 
             listaJogadores.Remove(jogador);
-            // caso tenha adversario remove todo o historico de partidas entre os dois e avisa ao adversario que o jogador desistiu da partida
+            // caso tenha adversario remove  o historico de partidas entre os dois e avisa ao adversario que o jogador desistiu da partida
             if (jogador.Adversario != null)
             {
                 string[] array = { jogador.IdConexao, jogador.Adversario.IdConexao };
@@ -234,7 +234,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                     DataTerminoPartida = DateTime.Now,
                     IdJogador = jogador.Adversario.IdConexao,
                     NomeJogador = jogador.Adversario.Nome,
-                    Vitoria = !jogo.DeuEmpate == true && resultado,
+                    Vitoria = !jogo.DeuEmpate && resultado,
                     Empate = jogo.JogoFinalizado && jogo.DeuEmpate
                 });
                 string[] jogadores = { jogador.IdConexao, jogador.Adversario.IdConexao };
