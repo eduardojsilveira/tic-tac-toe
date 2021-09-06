@@ -225,8 +225,8 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                     DataTerminoPartida = DateTime.Now,
                     IdJogador = jogador.IdConexao,
                     NomeJogador = jogador.Nome,
-                    Vitoria = (jogo.DeuEmpate == true) ? false : resultado,
-                    Empate = (jogo.JogoFinalizado && jogo.DeuEmpate)
+                    Vitoria = !jogo.DeuEmpate && resultado,
+                    Empate = jogo.JogoFinalizado && jogo.DeuEmpate
                 });
 
                 historico.Add(new HistoricoPartidas
@@ -234,13 +234,13 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                     DataTerminoPartida = DateTime.Now,
                     IdJogador = jogador.Adversario.IdConexao,
                     NomeJogador = jogador.Adversario.Nome,
-                    Vitoria = (jogo.DeuEmpate == true) ? false : !resultado,
-                    Empate = (jogo.JogoFinalizado && jogo.DeuEmpate)
+                    Vitoria = !jogo.DeuEmpate == true && resultado,
+                    Empate = jogo.JogoFinalizado && jogo.DeuEmpate
                 });
                 string[] jogadores = { jogador.IdConexao, jogador.Adversario.IdConexao };
 
                 // determina a quantidade de partidas jogadas
-                qtdPartidasJogadas = historico.Where(x => jogadores.Contains(x.IdJogador)).Count() / 2;
+                qtdPartidasJogadas = historico.Count(x => jogadores.Contains(x.IdJogador)) / 2;
                 // chama remotamente para o jogador e o adversário que a partida terminou
                 Clients.Client(jogo.Jogador1.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
                 Clients.Client(jogo.Jogador2.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
@@ -295,17 +295,17 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                 List<HistoricoPartidas> historicoJogador2 = lista.Where(x => x.IdJogador.Equals(idsJogadores[1])).ToList();
                 string vencedorFinal = null;
                 // caso haja 3 empates ou numero de vitorias entre o dois jogadores seja igual : é empate !!!
-                if (lista.Where(x => x.Empate == true).Count() / 2 == 3 || historicoJogador1.Where(x => x.Vitoria == true).Count() == historicoJogador2.Where(x => x.Vitoria == true).Count())
+                if (lista.Count(x => x.Empate) / 2 == 3 || historicoJogador1.Count(x => x.Vitoria) == historicoJogador2.Count(x => x.Vitoria))
                 {
                     vencedorFinal = string.Empty;
                 }
                 // caso o jogador 1 tenha um numero de vitorias maior que o jogador 2 : Vitória do jogador 1
-                else if (historicoJogador1.Where(x => x.Vitoria == true).Count() > historicoJogador2.Where(x => x.Vitoria == true).Count())
+                else if (historicoJogador1.Count(x => x.Vitoria) > historicoJogador2.Count(x => x.Vitoria))
                 {
                     vencedorFinal = historicoJogador1.Select(x => x.NomeJogador).FirstOrDefault();
                 }
                 // caso o jogador 2 tenha um numero de vitorias maior que o jogador 1: Vitória do jogador 2
-                else if (historicoJogador2.Where(x => x.Vitoria == true).Count() > historicoJogador1.Where(x => x.Vitoria == true).Count())
+                else if (historicoJogador2.Count(x => x.Vitoria) > historicoJogador1.Count(x => x.Vitoria))
                 {
                     vencedorFinal = historicoJogador2.Select(x => x.NomeJogador).FirstOrDefault();
                 }
@@ -319,7 +319,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
 
                 lista = lista.GetRange((qtdPartidaJogada == 3) ? qtdPartidaJogada + 1 : qtdPartidaJogada, 2);
             }
-            if (lista.Where(x => x.Vitoria == true).Count() == 1)
+            if (lista.Count(x => x.Vitoria) == 1)
             {
                 resultado[0] = lista.Where(x => x.IdJogador.Equals(Context.ConnectionId)).Select(x => new { nomeJogador = x.NomeJogador, status = (x.Vitoria) ? "V" : "D", id = x.IdJogador }).FirstOrDefault();
                 resultado[1] = lista.Where(x => !x.IdJogador.Equals(Context.ConnectionId)).Select(x => new { nomeJogador = x.NomeJogador, status = (x.Vitoria) ? "V" : "D", id = x.IdJogador }).FirstOrDefault();
