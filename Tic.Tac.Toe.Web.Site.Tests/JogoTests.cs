@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Telerik.JustMock;
 using Tic.Tac.Toe.Web.Site.Hubs;
+using Tic.Tac.Toe.Web.Site.Models;
 
 namespace Tic.Tac.Toe.Web.Site.Tests
 {
@@ -256,6 +258,74 @@ namespace Tic.Tac.Toe.Web.Site.Tests
 
         }
 
+        [TestMethod]
+        public async Task OnDisconnectedJogadorWhenWasPlayingAsyncTest()
+        {
+            var guidJogador1 = Guid.NewGuid().ToString();
+            var guidJogador2 = Guid.NewGuid().ToString();
+
+            var jogadores = new List<Jogador>();
+            var jogador2 = new Jogador
+            {
+                Nome = "Player2",
+                EstaJogando = true,
+                IdConexao = guidJogador2,
+                DataInicio = DateTime.Now,
+                EsperandoAdversario = true,
+                Simbolo = "O",
+            };
+
+            var jogador1 = new Jogador
+            {
+                Nome = "Player1",
+                EstaJogando = true,
+                IdConexao = guidJogador1,
+                DataInicio = DateTime.Now,
+                EsperandoAdversario = false,
+                Simbolo = "X",
+                Adversario = jogador2
+            };
+
+            jogadores.Add(jogador1);
+            jogador2.Adversario = jogador1;
+            jogadores.Add(jogador2);
+
+            var partida = new List<JogoDaVelha>();
+
+            partida.Add(new JogoDaVelha
+            {
+                Jogador1 = jogador1,
+                Jogador2 = jogador2,
+            });
+
+            var historico = new List<HistoricoPartidas>();
+            historico.Add(new HistoricoPartidas
+            {
+                IdJogador = guidJogador1,
+                DataTerminoPartida = DateTime.Now,
+                Empate = true,
+                NomeJogador = "Player1",
+                Vitoria = false
+            });
+
+            Jogo hub = new Jogo(partida, jogadores, historico);
+
+            var mockClients = Mock.Create<IHubCallerConnectionContext<dynamic>>();
+            var mockContext = Mock.Create<HubCallerContext>();
+            var all = Mock.Create<IJogadorClient>();
+
+            hub.Context = mockContext;
+            hub.Clients = mockClients;
+
+            Mock.Arrange(() => mockClients.All).Returns(all);
+            Mock.Arrange(() => mockClients.Client(Arg.AnyString)).Returns(all);
+            Mock.Arrange(() => mockContext.ConnectionId).Returns(guidJogador1);
+
+            await hub.OnDisconnected(true);
+            Mock.Assert(() => all.atualizaInformacoesJogos(Arg.AnyInt, Arg.AnyInt), Occurs.Once());
+            Mock.Assert(() => all.adversarioDesistiu(), Occurs.Once());
+        }
+
         public interface IJogadorClient
         {
             Task atualizaInformacoesJogos(int qtdPartidas, int qtdJogadores);
@@ -265,6 +335,7 @@ namespace Tic.Tac.Toe.Web.Site.Tests
             Task iniciarPartida(string nomeJogador, string simbolo);
             Task esperandoMovimentoJogador();
             Task esperandoMovimentoAdversario();
+            Task adversarioDesistiu();
         }
     }
 }

@@ -22,15 +22,15 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         /// <summary> 
         /// Lista de todos os jogadores cadastrados e ativos no momento
         /// </summary>
-        private static readonly List<Jogador> listaJogadores = new List<Jogador>();
+        private readonly List<Jogador> _listaJogadores = new List<Jogador>();
         /// <summary> 
         /// Lista de todas as partidas que ocorrem no momento 
         /// </summary>
-        private static readonly List<JogoDaVelha> listaPartidas = new List<JogoDaVelha>();
+        private readonly List<JogoDaVelha> _listaPartidas = new List<JogoDaVelha>();
         /// <summary> 
         /// Lista de histórico de partidas entre dois jogadores 
         /// </summary>
-        private static readonly List<HistoricoPartidas> historico = new List<HistoricoPartidas>();
+        private readonly List<HistoricoPartidas> _historico = new List<HistoricoPartidas>();
         /// <summary> 
         /// Objeto de números aleatórios para decidir quem começa a jogar 
         /// </summary>
@@ -55,17 +55,24 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             _random = random;
         }
 
+        public Jogo(List<JogoDaVelha> listaPartidas, List<Jogador> jogadores, List<HistoricoPartidas> historico)
+        {
+            _listaPartidas = listaPartidas;
+            _listaJogadores = jogadores;
+            _historico = historico;
+        }
+
         public override Task OnDisconnected(bool stopCalled)
         {
             // faz uma busca na lista de partidas com parametro o id da conexão do jogador que está disconectando do site
-            var jogo = listaPartidas.FirstOrDefault(x => x.Jogador1.IdConexao == Context.ConnectionId || x.Jogador2.IdConexao == Context.ConnectionId);
+            var jogo = _listaPartidas.FirstOrDefault(x => x.Jogador1.IdConexao == Context.ConnectionId || x.Jogador2.IdConexao == Context.ConnectionId);
             // caso o jogador não esteja jogando remove-lo da lista de jogadores e retornar para o AtualizaStatusSincronizacao
             if (jogo == null)
             {
-                var jogadorSemAdversario = listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
+                var jogadorSemAdversario = _listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
                 if (jogadorSemAdversario != null)
                 {
-                    listaJogadores.Remove(jogadorSemAdversario);
+                    _listaJogadores.Remove(jogadorSemAdversario);
 
                     AtualizarStatusSincronizacao();
                 }
@@ -74,19 +81,17 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // caso o jogador estava jogando remove a partida que estava jogando
             if (jogo != null)
             {
-                listaPartidas.Remove(jogo);
+                _listaPartidas.Remove(jogo);
             }
             // descobre quem é o jogador de acordo com o id da conexão dele
             var jogador = jogo.Jogador1.IdConexao == Context.ConnectionId ? jogo.Jogador1 : jogo.Jogador2;
 
-            if (jogador == null) return Task.CompletedTask;
-
-            listaJogadores.Remove(jogador);
+            _listaJogadores.Remove(jogador);
             // caso tenha adversario remove  o historico de partidas entre os dois e avisa ao adversario que o jogador desistiu da partida
             if (jogador.Adversario != null)
             {
                 string[] array = { jogador.IdConexao, jogador.Adversario.IdConexao };
-                historico.RemoveAll(x => array.Contains(x.IdJogador));
+                _historico.RemoveAll(x => array.Contains(x.IdJogador));
 
                 AtualizarStatusSincronizacao();
                 return Clients.Client(jogador.Adversario.IdConexao).adversarioDesistiu();
@@ -98,11 +103,11 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         {   // bloqueia o processo quando cadastra o jogador
             lock (sincronizacao)
             {   // verifica se o jogador existe e caso não exista adiciona-o na lista de jogadores
-                var jogador = listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
+                var jogador = _listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
                 if (jogador == null)
                 {
                     jogador = new Jogador { IdConexao = Context.ConnectionId, Nome = nome };
-                    listaJogadores.Add(jogador);
+                    _listaJogadores.Add(jogador);
                 }
 
                 jogador.EstaJogando = false;
@@ -126,13 +131,13 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // caso o parametro idJogador2 esteja nulo significa que ele está procurando novo adversário
             if (String.IsNullOrEmpty(IdJogador2))
             {
-                jogador = listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
+                jogador = _listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
                 if (jogador == null) return;
                 jogador.EsperandoAdversario = true;
                 /* encontro o adversário da seguinte forma : 
                  * faço uma busca na lista de jogadores que tenham id diferente do jogador 
                  * e que não estejam jogando e ordeno pelo id e pego o primeiro resultado */
-                adversario = listaJogadores.Where(x => x.IdConexao != Context.ConnectionId && x.EsperandoAdversario && !x.EstaJogando).OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+                adversario = _listaJogadores.Where(x => x.IdConexao != Context.ConnectionId && x.EsperandoAdversario && !x.EstaJogando).OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
                 if (adversario == null)
                 {   // caso não encontro o adversário chamo o metodo no cliente que não existe nenhum adversário
@@ -143,8 +148,8 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // se não significa que está jogando com o mesmo adversário e atribuimos novamente.
             else
             {
-                jogador = listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
-                adversario = listaJogadores.FirstOrDefault(x => x.IdConexao.Equals(IdJogador2));
+                jogador = _listaJogadores.FirstOrDefault(x => x.IdConexao == Context.ConnectionId);
+                adversario = _listaJogadores.FirstOrDefault(x => x.IdConexao.Equals(IdJogador2));
             }
             #region Atribuimos os dados dos jogadores
             jogador.EstaJogando = true;
@@ -182,7 +187,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             #region Cadastra a partida
             lock (sincronizacao)
             {
-                listaPartidas.Add(new JogoDaVelha { Jogador1 = jogador, Jogador2 = adversario });
+                _listaPartidas.Add(new JogoDaVelha { Jogador1 = jogador, Jogador2 = adversario });
             }
             #endregion
 
@@ -196,7 +201,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         public void Jogar(int posicao)
         {
             // verifica se o jogo existe na lista de partidas
-            JogoDaVelha jogo = listaPartidas.FirstOrDefault(x => x.Jogador1.IdConexao == Context.ConnectionId || x.Jogador2.IdConexao == Context.ConnectionId);
+            JogoDaVelha jogo = _listaPartidas.FirstOrDefault(x => x.Jogador1.IdConexao == Context.ConnectionId || x.Jogador2.IdConexao == Context.ConnectionId);
             // caso o jogo esteja finalizado sai do metodo
             if (jogo == null || jogo.JogoFinalizado) return;
 
@@ -218,9 +223,9 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
             // caso a partida terminou
             if (jogo.JogoFinalizado)
             {  // remove o jogo na lista de partidas
-                listaPartidas.Remove(jogo);
+                _listaPartidas.Remove(jogo);
                 // adiciona na lista de historico de partidas dados do jogador e do adversário quem ganhou, perdeu ou empatou a partida
-                historico.Add(new HistoricoPartidas
+                _historico.Add(new HistoricoPartidas
                 {
                     DataTerminoPartida = DateTime.Now,
                     IdJogador = jogador.IdConexao,
@@ -229,7 +234,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                     Empate = jogo.JogoFinalizado && jogo.DeuEmpate
                 });
 
-                historico.Add(new HistoricoPartidas
+                _historico.Add(new HistoricoPartidas
                 {
                     DataTerminoPartida = DateTime.Now,
                     IdJogador = jogador.Adversario.IdConexao,
@@ -240,10 +245,10 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                 string[] jogadores = { jogador.IdConexao, jogador.Adversario.IdConexao };
 
                 // determina a quantidade de partidas jogadas
-                qtdPartidasJogadas = historico.Count(x => jogadores.Contains(x.IdJogador)) / 2;
+                qtdPartidasJogadas = _historico.Count(x => jogadores.Contains(x.IdJogador)) / 2;
                 // chama remotamente para o jogador e o adversário que a partida terminou
-                Clients.Client(jogo.Jogador1.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
-                Clients.Client(jogo.Jogador2.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
+                Clients.Client(jogo.Jogador1.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(_historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
+                Clients.Client(jogo.Jogador2.IdConexao).fimDeJogo(qtdPartidasJogadas, AtualizarPlacar(_historico.Where(x => jogadores.Contains(x.IdJogador)).ToList(), qtdPartidasJogadas));
                 // caso a quantidade de partidas seja menor que 3 chama o mesmo adversário
                 if (qtdPartidasJogadas < 3)
                 {
@@ -251,7 +256,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
                 }
                 else
                 {
-                    historico.RemoveAll(x => jogadores.Contains(x.IdJogador));
+                    _historico.RemoveAll(x => jogadores.Contains(x.IdJogador));
                 }
 
             }
@@ -273,7 +278,7 @@ namespace Tic.Tac.Toe.Web.Site.Hubs
         public Task AtualizarStatusSincronizacao()
         {
             // Chama remotamente o metodo no client o metodo atualizaInformacoesJogos que contem  quantidade de partidas e jogadores.
-            return Clients.All.atualizaInformacoesJogos(listaPartidas.Count, listaJogadores.Count);
+            return Clients.All.atualizaInformacoesJogos(_listaPartidas.Count, _listaJogadores.Count);
         }
         /// <summary> 
         /// Método que atualiza os placar das partidas.

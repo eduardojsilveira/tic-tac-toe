@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
@@ -7,6 +8,7 @@ using Owin;
 
 namespace Tic.Tac.Toe.Web.Site
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public void Configuration(IAppBuilder app)
